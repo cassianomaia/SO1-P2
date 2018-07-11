@@ -162,7 +162,7 @@ fork(void)
   return pid;
 }
 
-// TASK4 esse processo È igual ao fork, mas chamamos o copyuvm_cow para compartilhamento de paginaÁ„o
+// TASK4 esse processo √© igual ao fork, mas chamamos o copyuvm_cow para compartilhamento de pagina√ß√£o
 // Create a new process with COW
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
@@ -177,7 +177,7 @@ cowfork(void)
     return -1;
 
   // Copy process state from p.
-  if((np->pgdir = copyuvm_cow(proc->pgdir, proc->sz)) == 0){ // copyum_cow faz o compartilhamento de paginaÁ„o
+  if((np->pgdir = copyuvm_cow(proc->pgdir, proc->sz)) == 0){ // copyum_cow faz o compartilhamento de pagina√ß√£o
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
@@ -483,8 +483,8 @@ kill(int pid)
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
 // No lock to avoid wedging a stuck machine further.
-/*  Essa È a funÁ„o respons·vel por exibir as informaÁıes dos processos
-    j· alocados na memÛria, e ser· modificada para a task 1 */
+/*  Essa √© a fun√ß√£o respons√°vel por exibir as informa√ß√µes dos processos
+    j√° alocados na mem√≥ria, e ser√° modificada para a task 1 */
 void
 procdump(void)                
 {
@@ -501,8 +501,8 @@ procdump(void)
   char *state;
   uint pc[10];
   
-  /*  LaÁo for que percorre a tabela de processos (ptable) e localiza os processos
-      delimitados pela constante NPROC (n˙mero de processos). Ele n„o foi alterado
+  /*  La√ßo for que percorre a tabela de processos (ptable) e localiza os processos
+      delimitados pela constante NPROC (n√∫mero de processos). Ele n√£o foi alterado
       pelo grupo */
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -520,42 +520,42 @@ procdump(void)
     }
     
     //TASK 1
-    /*  IdentificaÁ„o do endereÁo de inÌcio do Page Directory */
+     /*  Identifica√ß√£o do endere√ßo de in√≠cio do Page Directory */
     pde_t * pageDir = p -> pageDir;     
 
     cprintf("Localizacao do Page Directory na memoria: %p\n", pageDir);
 
-    /*  LaÁo para a busca do endereÁo que referencia o processo em quest„o
-        NPDENTRIES È a quantidade m·xima de registros por p·gina (1024) */
+    /*  La√ßo para a busca do endere√ßo que referencia o processo em quest√£o
+        NPDENTRIES √© a quantidade m√°xima de registros por p√°gina (1024) */
     for (i = 0; i < NPDENTRIES; i++){
-      /* VerificaÁ„o se a Page Table Entry (PTE) est· presente, È uma p·gina do usu·rio e È acessÌvel */
+      /* Verifica√ß√£o se a Page Table Entry (PTE), ou seja, entry, est√° presente, √© uma p√°gina do usu√°rio e √© acess√≠vel */
       if ((pageDir[i] & PTE_U) && (pageDir[i] & PTE_A) && (pageDir[i] & PTE_P)) {
-        /* Shift right para desconsiderar os primeiros 12 bits, que s„o flags */
-        cprintf(" Page Directory: %d, PTE: %d\n", i, pageDir[i] >> 12);
+        /* Shift right para desconsiderar os primeiros 12 bits, que s√£o flags */
+        cprintf(" Page Directory: %d, PPN: %d\n", i, pageDir[i] >> 12);
 
-        /* Convers„o do endereÁo fÌsico para o virtual atravÈs da funÁ„o P2V() */
+        /* Convers√£o do endere√ßo f√≠sico para o virtual atrav√©s da fun√ß√£o P2V() */
         pde_t * pageTable = P2V(PTE_ADDR(pageDir[i])); 
         cprintf("Localizacao do Page Table na memoria: %p\n", pageTable);
 
-        /*  LaÁo para a localizaÁ„o do PTE das tables, ou seja, s„o percorridas 
-            todas as p·ginas */
+        /*  La√ßo para a localiza√ß√£o do PPN das tables, ou seja, s√£o percorridas 
+            todas as p√°ginas */
         for (j = 0, j < NPTENTRIES, j++) {
           if ((pageTable[j] & PTE_U) && (pageTable[j] & PTE_A) && (pageTable[j] & PTE_P))
-            cprintf("Page Table: %d, PTE: %d, Endereco Virtual: %p\n", j, pageTable[j] >> 12, P2V(PTE_ADDR(pageTable[j])));
+            cprintf("Page Table: %d, PPN: %d, Endereco Virtual: %p\n", j, pageTable[j] >> 12, P2V(PTE_ADDR(pageTable[j])));
         }
       }
     }
 
     cprintf("Mapeamento de Paginas:\n");
     for (i = 0; i < NPDENTRIES; i++){
-      /* Mesma verificaÁ„o de PTE anterior */
+      /* Mesma verifica√ß√£o de flags anterior */
       if ((pageDir[i] & PTE_U) && (pageDir[i] & PTE_A) && (pageDir[i] & PTE_P)){
         pde_t * pageTable = P2V(PTE_ADDR(pageDir[i]));
 
-        /* InformaÁıes do PPN (Physical Page Number) da p·gina correspondente */
+        /* Informa√ß√µes do PPN (Physical Page Number) da p√°gina correspondente */
         for (j = 0; j < NPTENTRIES; j++) {
           if ((pageTable[j] & PTE_U) && (pageTable[j] & PTE_A) && (pageTable[j] & PTE_P))
-            cprintf("Pagina %d, PPN: %d\n", j, pageTable[j] >> 12);
+            cprintf( "%d ->  %d\n", (i << 10) | j, pageTable[j] >> 12);
         }
       }
     }
